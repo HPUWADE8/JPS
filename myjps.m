@@ -58,10 +58,12 @@ while flag==0
     [~,min_idx] = min(openlist_cost_f);
     parent_node = openlist_node(min_idx,:);
     parent_node_record = parent_node; % 记录每次探索的节点
-    
-    child_nodes=child_nodes_cal(parent_node,m,n,obstacle,closelist);
 
-
+    for i = 1:size(directions,1)
+        direction = directions(i,1:2);
+        successors = findsuccessor(parent_node,goal,m,n,obstacle,closelist,direction);
+        openlist = 
+    end
 
     %  if isequal(parent_node,goal)
      

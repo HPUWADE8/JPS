@@ -17,7 +17,7 @@ function successors = findsuccessor(current_node,goal_node,m,n,obstacle,closelis
         return;
     end   
     
-    [ishave,force_neibor] = isforced(current_node,obstacle,direction);
+    ishave= isforced(current_node,obstacle,direction);
     if ishave
         successors = [successors;current_node];
         return;
