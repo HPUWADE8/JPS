@@ -1,5 +1,9 @@
+close all;
+clear ;
+clc;
 m = 40; %y
 n = 60; %x
+tic;
 start = [1,5];
 goal = [59,39];
 directions = [1,0,1;0,1,1;-1,0,1;0,-1,1;...  % 右 上 左 下
@@ -91,7 +95,7 @@ while flag==0
         new_node = new_successors(i,:);
         g_temp = closelist{end,2}(1) + norm(parent_node - new_node); % g值为父节点的g值加上当前节点到父节点的距离
         h_temp = norm(new_node - goal);
-        f_temp = 0.5*g_temp + 2*h_temp; % f值为g值加上h值
+        f_temp = g_temp + h_temp; % f值为g值加上h值
         openlist{end+1,1} = new_node;
         openlist{end,2} = [g_temp,h_temp,f_temp];
         openlist{end,3} = parent_node; % 父节点坐标
@@ -108,7 +112,9 @@ while flag==0
 
 
 end
-
+elapsedTime = toc;
 
 path = closelist{end,4};
 plot(path(:,1),path(:,2),'r-','LineWidth',2);
+pathcost = closelist{end,2}(1);
+title(sprintf('路径长度为：%.2f,耗时：%.2f秒', pathcost, elapsedTime));
