@@ -1,13 +1,13 @@
 m = 40; %y
 n = 60; %x
-start = [1,10];
+start = [1,5];
 goal = [59,39];
 directions = [1,0,1;0,1,1;-1,0,1;0,-1,1;...  % 右 上 左 下
               -1,1,sqrt(2);1,-1,sqrt(2);-1,-1,sqrt(2);1,1,sqrt(2)];% 左上 右下 左下 右上
 obstacle = [];
 
 for i = 1:28
-    obstacle = [obstacle;20,i];
+    obstacle = [obstacle;20,i+1];
     obstacle = [obstacle;40,41-i];
    if i <=10
         obstacle = [obstacle;25+i,20];
@@ -34,8 +34,10 @@ end
 for i = 1:m
     boundary = [boundary; 0, i; n+1, i];    % 左、右边
 end
+boundary = [boundary; 0, 0; 0, m+1; n+1, 0; n+1, m+1];
 % 障碍 + 边界：黑色 ×
-drawX([obstacle;boundary], 'k', hx);
+obstacle = [obstacle; boundary];
+drawX(obstacle, 'k', hx);
 % 起点：绿色 ×
 drawX(start, 'g', hx);
 % 终点：红色 ×
@@ -51,7 +53,9 @@ openlist{1,2} = [g_temp,h_temp,f_temp]; % g,h,f
 openlist{1,3} = start; % 父节点坐标
 openlist{1,4} = start; % 路径
 flag = 0; % 标记是否找到路径
+cnt = 0;
 while flag==0
+    cnt = cnt + 1;
     openlist_node = vertcat(openlist{:,1});
     openlist_cost = vertcat(openlist{:,2});
     openlist_cost_f = openlist_cost(:,3);
@@ -59,17 +63,52 @@ while flag==0
     parent_node = openlist_node(min_idx,:);
     parent_node_record = parent_node; % 记录每次探索的节点
 
+
+    closelist{end+1,1} = parent_node;
+    closelist{end,2} = openlist_cost(min_idx,:);
+    closelist{end,3} = openlist{min_idx,3};
+    closelist{end,4} = openlist{min_idx,4};
+    if isequal(parent_node,goal)
+        flag = 1;
+        break;
+    end
+    successors_inthisloop = [];
     for i = 1:size(directions,1)
         direction = directions(i,1:2);
-        successors = findsuccessor(parent_node,goal,m,n,obstacle,closelist,direction);
-        openlist = 
+        successors = findsuccessor(parent_node,goal,m,n,obstacle,vertcat(closelist{:,1}),direction);
+        successors_inthisloop = [successors_inthisloop; successors];
     end
-
+    new_successors = setdiff(successors_inthisloop,vertcat(openlist{:,1}),'rows'); % 去除已在openlist中的后继结点
     %  if isequal(parent_node,goal)
-     
-    %     flag = 1;
-       
-    %  end
+
+    
+    openlist(min_idx,:) = []; % 从openlist中删除当前节点
+    drawX(new_successors, 'cyan', hx); 
+    hold on;
+
+    % 计算新后继结点的g、h、f值，并加入openlist
+    for i = 1:size(new_successors,1)
+        new_node = new_successors(i,:);
+        g_temp = closelist{end,2}(1) + norm(parent_node - new_node); % g值为父节点的g值加上当前节点到父节点的距离
+        h_temp = norm(new_node - goal);
+        f_temp = 0.5*g_temp + 2*h_temp; % f值为g值加上h值
+        openlist{end+1,1} = new_node;
+        openlist{end,2} = [g_temp,h_temp,f_temp];
+        openlist{end,3} = parent_node; % 父节点坐标
+        openlist{end,4} = [closelist{end,4};new_node];
+        % new_node = new_successors(i,:);
+        % g_temp = closelist{end,2}(1) + norm(new_node-parent_node); % g值为父节点的g值加上当前节点到父节点的距离
+        % h_temp = norm(new_node-goal); % h值为当前节点到目标节点的距离
+        % f_temp = g_temp + h_temp; % f值为g值加上h值
+        % openlist{end+1,1} = new_node;
+        % openlist{end,2} = [g_temp,h_temp,f_temp];
+        % openlist{end,3} = parent_node; % 父节点坐标
+        % openlist{end,4} = [closelist{end,4};new_node]; % 路径
+    end
 
 
 end
+
+
+path = closelist{end,4};
+plot(path(:,1),path(:,2),'r-','LineWidth',2);

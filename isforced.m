@@ -1,7 +1,7 @@
 function ishave = isforced(current_node,obstacle,direction);
     x_dir = direction(1);
     y_dir = direction(2);
-    maybeobstacle = [];
+    % maybeobstacle = [];
     ishave = false;
     if x_dir == 0 && y_dir ~= 0 % 上下方向
         maybeobstacle = [current_node(1)-1,current_node(2);current_node(1)+1,current_node(2)];  % 左右的障碍
@@ -20,7 +20,7 @@ function ishave = isforced(current_node,obstacle,direction);
             end
         end
     elseif x_dir ~= 0 && y_dir ~= 0 % 对角线方向
-        maybeobstacle = [current_node(1)-x_dir,current_node(2);current_node(1),current_node(2)-y_dir];
+        maybeobstacle = [current_node(1)-x_dir,current_node(2);current_node(1),current_node(2)-y_dir]; %第一个障碍y不变
         maybeforcedneibor = [current_node(1)-x_dir,current_node(2)+y_dir;current_node(1)+x_dir,current_node(2)-y_dir];
         for i = 1:size(maybeobstacle,1)
             if ismember(maybeobstacle(i,:),obstacle,'rows') && ~ismember(maybeforcedneibor(i,:),obstacle,'rows')
